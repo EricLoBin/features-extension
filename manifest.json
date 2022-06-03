@@ -1,0 +1,19 @@
+{
+    "name": "Features-extension",
+    "description": "Features",
+    "version": "1.0",
+    "manifest_version": 3,
+    "content_scripts": [
+        {
+            "matches": [
+                "*://www.youtube.com/*"
+            ],
+            "js": [
+                "src/youtube/ad-skipper.js"
+            ],
+            "css": [
+                "src/youtube/pip.css"
+            ]
+        }
+    ]
+}
