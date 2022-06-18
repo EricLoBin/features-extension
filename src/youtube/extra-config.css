@@ -63,3 +63,10 @@
     border: solid 2px #000000aa;
     color: var(--text-color);
 }
+
+/* Slider input style*/
+#extra-config input[type="range"] {
+    --margin: 1rem;
+    width: calc(100% - var(--margin) * 2);
+    margin-left: var(--margin);
+}

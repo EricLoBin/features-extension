@@ -26,11 +26,13 @@
                 </g>
             </svg>`;
             div.appendChild(expand_button);
-            panel.classList.add("hide");
+            if (sessionStorage.getItem("extra-config") != "true") panel.classList.add("hide");
             div.onclick = () => {
                 if (panel.classList.contains("hide")) {
+                    sessionStorage.setItem("extra-config", "true");
                     panel.classList.remove("hide");
                 } else {
+                    sessionStorage.setItem("extra-config", "false");
                     panel.classList.add("hide");
                 }
             };
@@ -73,8 +75,8 @@
             let volume = createMenuItem(`Volume: 100%`, (() => {
                 let input = document.createElement("input");
                 input.type = "range";
-                input.min = "0";
-                input.max = "200";
+                input.min = 0;
+                input.max = 200;
                 input.value = 100;
                 
                 // Allow over 100%
@@ -86,10 +88,17 @@
                 }
                 gainNode.gain.value = 1;
                 
-                input.onchange = (e) => {
+                input.oninput = (e) => {
                     gainNode.gain.value = e.target.value / 100; // volume
                     volume.children[0].innerHTML = `Volume: ${e.target.value}%`;
                 };
+                input.onchange = (e) => {
+                    if (e.target.value == e.target.max) {
+                        e.target.max = parseInt(e.target.max) + 100;
+                    } else while (parseInt(e.target.value) < parseInt(e.target.max) - 100) {
+                        e.target.max = parseInt(e.target.max) - 100;
+                    }
+                }
                 return input;
             }));
             
