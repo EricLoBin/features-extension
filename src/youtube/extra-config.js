@@ -112,6 +112,12 @@
     // Add the menu
     (() => {
         const observer = new MutationObserver(() => {
+            // set correct playback speed
+            if (!document.querySelector(".ytp-ad-preview-container")) {
+                document.querySelector("video").playbackRate = sessionStorage.getItem("extra-config-playback-speed") || 1;
+            }
+
+            // create the menu
             if (!document.querySelector("video")) return;
             if (!document.querySelector("#secondary-inner #panels")) return;
             if (document.querySelector("#extra-config")) return;

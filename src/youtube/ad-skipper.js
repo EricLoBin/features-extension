@@ -1,6 +1,9 @@
 
 (() => {
     const observer = new MutationObserver(() => {
+        if (document.querySelector(".ytp-ad-preview-container")) {
+            document.querySelector("video").playbackRate = 5;
+        }
         if (!!document.querySelector(".ytp-ad-skip-button")){
             document.querySelector(".ytp-ad-skip-button").click();
         }
