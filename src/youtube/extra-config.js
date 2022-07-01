@@ -5,6 +5,21 @@
     let gainNode;
     // end Audio context for volume control
 
+    // Keyboard shortcuts
+    let keyboardShortcuts = { // other shortcuts are added among the functions
+        " ": (() => {
+            window.scrollTo(0, 0);
+            document.querySelector("video").focus();
+        })
+    };
+
+    document.addEventListener("keydown", (e) => {
+        if (!e.ctrlKey) return;
+        if (!keyboardShortcuts[e.key]) return;
+        e.preventDefault();
+        keyboardShortcuts[e.key]();
+    });
+
     function createMenu() {
         // Create the menu
         let panel = document.createElement("div");
@@ -54,18 +69,34 @@
         
         (() => {
             // playback speed option
-            let playbackSpeed = createMenuItem("Playback speed:", (() => {
+            let playbackSpeed = createMenuItem(`Playback speed: ${sessionStorage.getItem("extra-config-playback-speed") || 1} X`, (() => {
                 let input = document.createElement("input");
-                input.type = "number";
-                input.min = "0.1";
-                input.step = "0.1";
+                input.type = "range";
+                input.min = 0.1;
+                input.max = 5;
+                input.step = 0.1;
                 input.value = sessionStorage.getItem("extra-config-playback-speed") || 1;
                 video.playbackRate = input.value;
-                input.onchange = (e) => {
-                    if (e.target.value < 0.1) e.target.value = 0.1;
-                    sessionStorage.setItem("extra-config-playback-speed", e.target.value);
-                    video.playbackRate = e.target.value; // playback Speed
+
+                input.oninput = () => {
+                    playbackSpeed.children[0].innerHTML = `Playback speed: ${input.value} X`;
+                    if (input.value < 0.1) input.value = 0.1;
+                    sessionStorage.setItem("extra-config-playback-speed", input.value);
+                    video.playbackRate = input.value; // playback Speed
                 };
+
+                // adding shortcut to change playback speed
+                keyboardShortcuts.ArrowRight = (() => {
+                    if (Number(input.value) + 0.1 > 5) return;
+                    input.value = (Number(input.value) + 0.1).toFixed(1);
+                    input.oninput();
+                });
+                keyboardShortcuts.ArrowLeft = (() => {
+                    if (Number(input.value) - 0.1 <= 0) return;
+                    input.value = (Number(input.value) - 0.1).toFixed(1);
+                    input.oninput();
+                });
+
                 return input;
             }));
             
@@ -88,17 +119,36 @@
                 }
                 gainNode.gain.value = 1;
                 
-                input.oninput = (e) => {
-                    gainNode.gain.value = e.target.value / 100; // volume
-                    volume.children[0].innerHTML = `Volume: ${e.target.value}%`;
+                input.oninput = () => {
+                    gainNode.gain.value = input.value / 100; // volume
+                    volume.children[0].innerHTML = `Volume: ${input.value}%`;
                 };
-                input.onchange = (e) => {
-                    if (e.target.value == e.target.max) {
-                        e.target.max = parseInt(e.target.max) + 100;
-                    } else while (parseInt(e.target.value) < parseInt(e.target.max) - 100) {
-                        e.target.max = parseInt(e.target.max) - 100;
+                input.onchange = () => {
+                    if (input.value == input.max) {
+                        input.max = parseInt(input.max) + 100;
+                    } else while (parseInt(input.value) < parseInt(input.max) - 100) {
+                        input.max = parseInt(input.max) - 100;
                     }
                 }
+
+                // adding shortcut to change volume
+                keyboardShortcuts.ArrowUp = (() => {
+                    input.value = (Number(input.value) + 5).toFixed(1);
+                    input.oninput();
+                    input.onchange();
+                });
+                keyboardShortcuts.ArrowDown = (() => {
+                    if (Number(input.value) - 5 <= 0) {
+                        input.value = 0;
+                        input.oninput();
+                        input.onchange();
+                        return;
+                    };
+                    input.value = (Number(input.value) - 5).toFixed(1);
+                    input.oninput();
+                    input.onchange();
+                });
+                
                 return input;
             }));
             
@@ -112,13 +162,14 @@
     // Add the menu
     (() => {
         const observer = new MutationObserver(() => {
+            if (!document.querySelector("video")) return;
+            
             // set correct playback speed
             if (!document.querySelector(".ytp-ad-preview-container")) {
                 document.querySelector("video").playbackRate = sessionStorage.getItem("extra-config-playback-speed") || 1;
             }
-
+            
             // create the menu
-            if (!document.querySelector("video")) return;
             if (!document.querySelector("#secondary-inner #panels")) return;
             if (document.querySelector("#extra-config")) return;
             createMenu();

@@ -1,7 +1,7 @@
 /* Menu Style */
 #extra-config {
     --text-color: var(--ytd-video-primary-info-renderer-title-color, var(--yt-spec-text-primary));
-    --background-color: var(--ytd-searchbox-background);
+    --background-color: var(--yt-spec-general-background-b);
     --background-secondary-color: var(--yt-live-chat-message-highlight-background-color);
     padding: 10px 10px;
     background-color: var(--background-color);
